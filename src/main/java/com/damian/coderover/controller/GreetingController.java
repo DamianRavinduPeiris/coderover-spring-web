@@ -10,4 +10,9 @@ public class GreetingController {
     public String greeting() {
         return "hi junie";
     }
+
+    @GetMapping("/home")
+    public String home() {
+        return "home";
+    }
 }
