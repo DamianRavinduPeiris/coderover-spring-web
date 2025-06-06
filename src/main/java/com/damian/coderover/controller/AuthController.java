@@ -22,7 +22,7 @@ public class AuthController {
                            @AuthenticationPrincipal OAuth2User principal) {
         /*log all the  info from principal and client*/
         log.info("Principal: {}", principal.getAttributes());
-        log.info("Authorized Client: " + authorizedClient.getClientRegistration().getClientId());
+        log.info("Authorized Client: {}", authorizedClient.getClientRegistration().getClientId());
         log.info("Authorized Client Scopes: {}", authorizedClient.getClientRegistration().getScopes());
         log.info("Authorized Client Access Token: " + authorizedClient.getAccessToken().getTokenValue());
         log.info("Authorized Client Refresh Token: " + authorizedClient.getRefreshToken());
@@ -47,5 +47,10 @@ public class AuthController {
         log.info("Authorized Client Principal Class Enclosing Class: " + principal.getClass().getEnclosingClass());
         log.info("Authorized Client Principal Class Enclosing Method: " + principal.getClass().getEnclosingMethod());
         return "Access Token: " + authorizedClient.getAccessToken().getTokenValue();
+    }
+
+    @GetMapping(path = "/check")
+    public String check(){
+        return "ok!!!!!!!!!!!!!!";
     }
 }
