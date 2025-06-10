@@ -18,7 +18,9 @@ spring:
             token-uri: https://github.com/login/oauth/access_token
             user-info-uri: https://api.github.com/user
             user-name-attribute: login
+github:
+  base-uri: https://api.github.com
 jwt:
     secret: ${JWT_SECRET}
-    expiration-ms: 60000
+    expiration-ms: 600000000
 debug: true
