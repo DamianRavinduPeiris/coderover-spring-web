@@ -1,6 +1,5 @@
-package com.damian.coderover.util;
+package com.damian.coderover.filter;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -32,6 +31,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String ROLES_CLAIM = "roles";
     private static final String ROLE_PREFIX = "ROLE_";
 
+    private static final String LOG_NO_TOKEN = "No JWT token found in request headers!";
+    private static final String LOG_INVALID_TOKEN = "Invalid JWT token: missing subject or expiration";
+    private static final String LOG_ROLE_TYPE_WARNING = "Skipping unexpected role type: {}";
+    private static final String LOG_ROLE_FORMAT_WARNING = "Expected a list for 'roles' claim but got: {}";
+    private static final String LOG_ROLES_EXTRACTED = "Extracted roles from JWT: {}";
+    private static final String LOG_USER_AUTHENTICATED = "Authenticated user: {}";
+    private static final String LOG_JWT_VALIDATION_FAILED = "JWT validation failed: {}";
+    private static final String LOG_JWT_PROCESSING_ERROR = "Unexpected error during JWT processing: {}";
+
+    private static final String EXC_JWT_INVALID = "Invalid JWT token: ";
+    private static final String UNEXPECTED_ERROR_OCCURRED = "Unexpected error occurred while processing the JWT: ";
+
     @Value("${jwt.secret}")
     private String jwtSecret;
 
@@ -44,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         var header = request.getHeader(AUTH_HEADER);
 
         if (header == null || !header.startsWith(TOKEN_PREFIX)) {
-            log.debug("No JWT token found in request headers");
+            log.debug(LOG_NO_TOKEN);
             filterChain.doFilter(request, response);
             return;
         }
@@ -53,7 +64,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             var key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-
             var claims = Jwts.parser()
                     .verifyWith(key)
                     .build()
@@ -63,12 +73,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var username = claims.getSubject();
 
             if (username == null || claims.getExpiration() == null) {
-                log.warn("Invalid JWT token : missing subject or expiration");
+                log.warn(LOG_INVALID_TOKEN);
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            // Safe role extraction
             var rawRoles = claims.get(ROLES_CLAIM);
             var authorities = new ArrayList<SimpleGrantedAuthority>();
 
@@ -77,24 +86,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     if (role instanceof String roleStr) {
                         authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + roleStr));
                     } else {
-                        log.warn("Skipping unexpected role type: {}", role.getClass());
+                        log.warn(LOG_ROLE_TYPE_WARNING, role.getClass());
                     }
                 }
             } else if (rawRoles != null) {
-                log.warn("Expected a list for 'roles' claim but got: {}", rawRoles.getClass());
+                log.warn(LOG_ROLE_FORMAT_WARNING, rawRoles.getClass());
             }
-            log.info("Extracted roles from JWT: {}", authorities);
+
+            log.info(LOG_ROLES_EXTRACTED, authorities);
+
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 var auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
-                log.debug("Authenticated user: {}", username);
+                log.debug(LOG_USER_AUTHENTICATED, username);
             }
 
         } catch (JwtException e) {
-            log.error("JWT validation failed: {}", e.getMessage());
+            log.error(LOG_JWT_VALIDATION_FAILED, e.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, EXC_JWT_INVALID + e.getMessage());
+            return;
         } catch (Exception e) {
-            log.error("Unexpected error during JWT processing: {}", e.getMessage());
+            log.error(LOG_JWT_PROCESSING_ERROR, e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, UNEXPECTED_ERROR_OCCURRED + e.getMessage());
+            return;
         }
 
         filterChain.doFilter(request, response);
