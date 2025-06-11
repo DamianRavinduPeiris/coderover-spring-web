@@ -23,4 +23,7 @@ github:
 jwt:
     secret: ${JWT_SECRET}
     expiration-ms: 600000000
+frontend:
+    redirect-uri: ${FRONTEND_REDIRECT_URI}
 debug: true
+

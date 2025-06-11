@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String LOG_USER_AUTHENTICATED = "Authenticated user: {}";
     private static final String LOG_JWT_VALIDATION_FAILED = "JWT validation failed: {}";
     private static final String LOG_JWT_PROCESSING_ERROR = "Unexpected error during JWT processing: {}";
+    private static final String ACCESS_TOKEN_COOKIE = "access_token";
 
     private static final String EXC_JWT_INVALID = "Invalid JWT token: ";
     private static final String UNEXPECTED_ERROR_OCCURRED = "Unexpected error occurred while processing the JWT: ";
@@ -47,28 +48,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String jwtSecret;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         var header = request.getHeader(AUTH_HEADER);
+        String token = null;
 
-        if (header == null || !header.startsWith(TOKEN_PREFIX)) {
+        if (header != null && header.startsWith(TOKEN_PREFIX)) {
+            token = header.substring(TOKEN_PREFIX.length());
+        } else if (request.getCookies() != null) {
+            for (var cookie : request.getCookies()) {
+                if (ACCESS_TOKEN_COOKIE.equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        } else {
             log.debug(LOG_NO_TOKEN);
             filterChain.doFilter(request, response);
             return;
         }
 
-        var token = header.substring(TOKEN_PREFIX.length());
 
         try {
             var key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-            var claims = Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+            var claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
 
             var username = claims.getSubject();
 
