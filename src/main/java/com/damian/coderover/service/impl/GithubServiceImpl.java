@@ -90,4 +90,15 @@ public class GithubServiceImpl implements GithubService {
             throw new GithubException("Failed to fetch branch details: " + e.getMessage());
         }
     }
+
+    @Override
+    public ResponseEntity<Response> fetchAllBranches(String accessToken, String owner, String repo) {
+        try {
+            var authHeader = withBearer(accessToken);
+            var branchDetails = githubClient.getAllBranches(authHeader, owner, repo);
+            return ResponseEntity.ok(new Response("All branches fetched :  " + SUCCESS, branchDetails, HttpStatus.OK.value()));
+        } catch (Exception e) {
+            throw new GithubException("Failed to fetch branches : " + e.getMessage());
+        }
+    }
 }

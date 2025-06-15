@@ -1,6 +1,7 @@
 package com.damian.coderover.dto;
 
 public record BranchResponse(
+        String name,
         Commit commit
 ) {
     public record Commit(
@@ -15,5 +16,3 @@ public record BranchResponse(
         }
     }
 }
-
-

@@ -44,4 +44,12 @@ public interface GithubClient {
             @PathVariable String branch
     );
 
+    @GetMapping("/repos/{owner}/{repo}/branches")
+    List<BranchResponse> getAllBranches(
+            @RequestHeader("Authorization") String token,
+            @PathVariable String owner,
+            @PathVariable String repo
+    );
+
+
 }

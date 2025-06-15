@@ -6,8 +6,11 @@ import org.springframework.http.ResponseEntity;
 public interface GithubService {
     ResponseEntity<Response> fetchUserRepos(String accessToken);
 
-    ResponseEntity<Response> fetchRepoTree(String accessToken, String owner, String repo,String branch);
+    ResponseEntity<Response> fetchRepoTree(String accessToken, String owner, String repo, String branch);
 
     ResponseEntity<Response> fetchFileBlob(String accessToken, String owner, String repo, String sha);
+
     ResponseEntity<Response> fetchBranchDetails(String accessToken, String owner, String repo, String branch);
+
+    ResponseEntity<Response> fetchAllBranches(String accessToken, String owner, String repo);
 }

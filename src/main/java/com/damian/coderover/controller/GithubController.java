@@ -38,6 +38,12 @@ public class GithubController {
         return githubService.fetchFileBlob(client.getAccessToken().getTokenValue(), owner, repo, sha);
     }
 
+    @GetMapping("/repos/{owner}/{repo}")
+    public ResponseEntity<Response> getAllBranches(@RegisteredOAuth2AuthorizedClient("github") OAuth2AuthorizedClient client,
+                                                @PathVariable String owner, @PathVariable String repo) {
+        return githubService.fetchAllBranches(client.getAccessToken().getTokenValue(), owner, repo);
+    }
+
     @GetMapping( "/user")
     public ResponseEntity<Response> fetchUserInfo() {
         return userService.fetchUserInfo();
