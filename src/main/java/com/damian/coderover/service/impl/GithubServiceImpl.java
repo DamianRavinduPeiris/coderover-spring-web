@@ -1,5 +1,7 @@
 package com.damian.coderover.service.impl;
 
+import com.damian.coderover.dto.BranchResponse;
+import com.damian.coderover.exception.GithubException;
 import com.damian.coderover.feign.GithubClient;
 import com.damian.coderover.response.Response;
 import com.damian.coderover.service.GithubService;
@@ -13,19 +15,79 @@ import org.springframework.stereotype.Service;
 @Log4j2
 @RequiredArgsConstructor
 public class GithubServiceImpl implements GithubService {
+
+    private static final String JAVA = "Java";
+    private static final String SUCCESS = "successfully";
+    private static final String ERROR_BRANCH_NOT_FOUND = "Branch not found!";
+    private static final String ERROR_NULL_BRANCH_SHA = "Tree SHA missing in branch commit.";
+
     private final GithubClient githubClient;
+
+    public static String withBearer(String accessToken) {
+        if (accessToken == null || accessToken.isBlank()) {
+            throw new IllegalArgumentException("Access token cannot be null or blank");
+        }
+        return "Bearer " + accessToken;
+    }
 
     @Override
     public ResponseEntity<Response> fetchUserRepos(String accessToken) {
         try {
-            var repos = githubClient.getUserRepos("Bearer " + accessToken);
+            var authHeader = withBearer(accessToken);
+            var repos = githubClient.getUserRepos(authHeader);
             log.info("Fetched {} repositories for user", repos.size());
-            repos = repos.stream()
-                    .filter(repo -> "Java".equalsIgnoreCase(repo.language()))
-                    .toList();
-            return ResponseEntity.ok(new Response("User repositories fetched successfully", repos, HttpStatus.OK.value()));
+
+            repos = repos.stream().filter(repo -> JAVA.equalsIgnoreCase(repo.language())).toList();
+
+            return ResponseEntity.ok(new Response("User repositories fetched " + SUCCESS, repos, HttpStatus.OK.value()));
         } catch (Exception e) {
-            throw new RuntimeException("Error fetching user repositories: " + e.getMessage(), e);
+            throw new GithubException("Failed to fetch user repositories: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<Response> fetchRepoTree(String accessToken, String owner, String repo, String branch) {
+        try {
+            var branchDetailsResponse = fetchBranchDetails(accessToken, owner, repo, branch);
+
+            if (!branchDetailsResponse.getStatusCode().is2xxSuccessful() || branchDetailsResponse.getBody() == null) {
+                throw new GithubException(ERROR_BRANCH_NOT_FOUND);
+            }
+
+            var branchData = (BranchResponse) branchDetailsResponse.getBody().data();
+            if (branchData == null || branchData.commit() == null || branchData.commit().commit() == null || branchData.commit().commit().tree() == null) {
+                throw new GithubException(ERROR_NULL_BRANCH_SHA);
+            }
+
+            var sha = branchData.commit().commit().tree().sha();
+            var authHeader = withBearer(accessToken);
+            var repoTree = githubClient.getRepoTree(authHeader, owner, repo, sha);
+
+            return ResponseEntity.ok(new Response("Repo tree fetched " + SUCCESS, repoTree, HttpStatus.OK.value()));
+        } catch (Exception e) {
+            throw new GithubException("Failed to fetch repo tree: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<Response> fetchFileBlob(String accessToken, String owner, String repo, String sha) {
+        try {
+            var authHeader = withBearer(accessToken);
+            var fileBlob = githubClient.getFileBlob(authHeader, owner, repo, sha);
+            return ResponseEntity.ok(new Response("File blob fetched " + SUCCESS, fileBlob, HttpStatus.OK.value()));
+        } catch (Exception e) {
+            throw new GithubException("Failed to fetch file blob: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<Response> fetchBranchDetails(String accessToken, String owner, String repo, String branch) {
+        try {
+            var authHeader = withBearer(accessToken);
+            var branchDetails = githubClient.getBranchDetails(authHeader, owner, repo, branch);
+            return ResponseEntity.ok(new Response("Branch details fetched " + SUCCESS, branchDetails, HttpStatus.OK.value()));
+        } catch (Exception e) {
+            throw new GithubException("Failed to fetch branch details: " + e.getMessage());
         }
     }
 }

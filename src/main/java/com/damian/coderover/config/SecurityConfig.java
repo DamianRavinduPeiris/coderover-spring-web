@@ -32,5 +32,6 @@ public class SecurityConfig {
                         .failureHandler(oAuth2FailureHandler)
                 )
                 .csrf(AbstractHttpConfigurer::disable);
-    return http.build();}
+        return http.build();
+    }
 }
