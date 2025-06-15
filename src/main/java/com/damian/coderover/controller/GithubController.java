@@ -2,6 +2,7 @@ package com.damian.coderover.controller;
 
 import com.damian.coderover.response.Response;
 import com.damian.coderover.service.GithubService;
+import com.damian.coderover.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,17 +15,18 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class GithubController {
     private final GithubService githubService;
+    private final UserService userService;
 
     @GetMapping(path = "/user/repos")
     public ResponseEntity<Response> fetchUserRepos(@RegisteredOAuth2AuthorizedClient("github")
-                                                       OAuth2AuthorizedClient authorizedClient) {
+                                                   OAuth2AuthorizedClient authorizedClient) {
         return githubService.fetchUserRepos(authorizedClient.getAccessToken().getTokenValue());
     }
 
     @GetMapping("/repos/{owner}/{repo}/tree")
     public ResponseEntity<Response> fetchRepoTree(@RegisteredOAuth2AuthorizedClient("github") OAuth2AuthorizedClient client,
                                                   @PathVariable String owner, @PathVariable String repo,
-                                                  @RequestParam(defaultValue = "main") String branch) {
+                                                  @RequestParam(defaultValue = "master") String branch) {
 
         return githubService.fetchRepoTree(client.getAccessToken().getTokenValue(), owner, repo, branch);
     }
@@ -34,5 +36,10 @@ public class GithubController {
                                                 @PathVariable String owner, @PathVariable String repo,
                                                 @RequestParam String sha) {
         return githubService.fetchFileBlob(client.getAccessToken().getTokenValue(), owner, repo, sha);
+    }
+
+    @GetMapping( "/user")
+    public ResponseEntity<Response> fetchUserInfo() {
+        return userService.fetchUserInfo();
     }
 }

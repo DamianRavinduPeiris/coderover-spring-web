@@ -1,10 +1,11 @@
 package com.damian.coderover.config;
 
 import com.damian.coderover.filter.JwtAuthenticationFilter;
+import com.damian.coderover.handler.OAuth2FailureHandler;
+import com.damian.coderover.handler.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -25,7 +26,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(customizer -> customizer
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(Customizer.withDefaults())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2LoginSuccessHandler)

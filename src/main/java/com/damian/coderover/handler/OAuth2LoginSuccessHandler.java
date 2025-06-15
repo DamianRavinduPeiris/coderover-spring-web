@@ -1,4 +1,4 @@
-package com.damian.coderover.config;
+package com.damian.coderover.handler;
 
 import com.damian.coderover.util.TokenProvider;
 import jakarta.servlet.http.Cookie;
@@ -35,7 +35,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         cookie.setSecure(true);
         cookie.setPath(COOKIE_PATH);
         cookie.setMaxAge(3600);
-        cookie.setSecure(true);
         response.addCookie(cookie);
         log.info("Redirecting to : {}", redirectUrl);
         response.sendRedirect(redirectUrl);

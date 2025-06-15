@@ -1,4 +1,4 @@
-package com.damian.coderover.config;
+package com.damian.coderover.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
