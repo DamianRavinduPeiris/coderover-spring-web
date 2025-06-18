@@ -19,8 +19,10 @@ public class GithubController {
 
     @GetMapping(path = "/user/repos")
     public ResponseEntity<Response> fetchUserRepos(@RegisteredOAuth2AuthorizedClient("github")
-                                                   OAuth2AuthorizedClient authorizedClient) {
-        return githubService.fetchUserRepos(authorizedClient.getAccessToken().getTokenValue());
+                                                   OAuth2AuthorizedClient authorizedClient,
+                                                   @RequestParam(value = "per_page", required = false) Integer perPage,
+                                                   @RequestParam(value = "page", required = false) Integer page) {
+        return githubService.fetchUserRepos(authorizedClient.getAccessToken().getTokenValue(), perPage, page);
     }
 
     @GetMapping("/repos/{owner}/{repo}/tree")

@@ -4,7 +4,7 @@ import com.damian.coderover.response.Response;
 import org.springframework.http.ResponseEntity;
 
 public interface GithubService {
-    ResponseEntity<Response> fetchUserRepos(String accessToken);
+    ResponseEntity<Response> fetchUserRepos(String accessToken, Integer perPage, Integer page);
 
     ResponseEntity<Response> fetchRepoTree(String accessToken, String owner, String repo, String branch);
 

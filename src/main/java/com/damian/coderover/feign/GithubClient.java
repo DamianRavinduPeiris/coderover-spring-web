@@ -15,7 +15,11 @@ import java.util.List;
 public interface GithubClient {
 
     @GetMapping(value = "/user/repos", headers = "Accept=application/vnd.github+json")
-    List<RepoDTO> getUserRepos(@RequestHeader("Authorization") String authHeader);
+    List<RepoDTO> getUserRepos(
+            @RequestHeader("Authorization") String authHeader,
+            @org.springframework.web.bind.annotation.RequestParam(value = "per_page", required = false) Integer perPage,
+            @org.springframework.web.bind.annotation.RequestParam(value = "page", required = false) Integer page
+    );
 
     @GetMapping("/repos/{owner}/{repo}/git/trees/{sha}?recursive=1")
     GitTreeResponse getRepoTree(
