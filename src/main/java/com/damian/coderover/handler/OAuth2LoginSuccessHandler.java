@@ -19,8 +19,8 @@ import java.io.IOException;
 @Log4j2
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final static String ACCESS_TOKEN_COOKIE_NAME = "access_token";
-    private final static String COOKIE_PATH = "/";
+    private static final String ACCESS_TOKEN_COOKIE_NAME = "access_token";
+    private static final String COOKIE_PATH = "/";
     private final TokenProvider tokenProvider;
     @Value("${frontend.redirect-uri}")
     private String redirectUrl;
@@ -38,6 +38,5 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.addCookie(cookie);
         log.info("Redirecting to : {}", redirectUrl);
         response.sendRedirect(redirectUrl);
-
     }
 }

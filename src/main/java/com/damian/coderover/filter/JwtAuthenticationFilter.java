@@ -48,63 +48,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String jwtSecret;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-
-        var header = request.getHeader(AUTH_HEADER);
-        String token = null;
-
-        if (header != null && header.startsWith(TOKEN_PREFIX)) {
-            token = header.substring(TOKEN_PREFIX.length());
-        } else if (request.getCookies() != null) {
-            for (var cookie : request.getCookies()) {
-                if (ACCESS_TOKEN_COOKIE.equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
-        } else {
-            log.debug(LOG_NO_TOKEN);
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
         try {
-            var key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-            var claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
-
-            var username = claims.getSubject();
-
-            if (username == null || claims.getExpiration() == null) {
-                log.warn(LOG_INVALID_TOKEN);
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            var rawRoles = claims.get(ROLES_CLAIM);
-            var authorities = new ArrayList<SimpleGrantedAuthority>();
-
-            if (rawRoles instanceof List<?> roleList) {
-                for (Object role : roleList) {
-                    if (role instanceof String roleStr) {
-                        authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + roleStr));
-                    } else {
-                        log.warn(LOG_ROLE_TYPE_WARNING, role.getClass());
-                    }
-                }
-            } else if (rawRoles != null) {
-                log.warn(LOG_ROLE_FORMAT_WARNING, rawRoles.getClass());
-            }
-
-            log.info(LOG_ROLES_EXTRACTED, authorities);
-
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                var auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(auth);
-                log.debug(LOG_USER_AUTHENTICATED, username);
-            }
-
+            processAuthentication(request);
         } catch (JwtException e) {
             log.error(LOG_JWT_VALIDATION_FAILED, e.getMessage());
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, EXC_JWT_INVALID + e.getMessage());
@@ -114,7 +61,76 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, UNEXPECTED_ERROR_OCCURRED + e.getMessage());
             return;
         }
-
         filterChain.doFilter(request, response);
+    }
+
+    private void processAuthentication(HttpServletRequest request) {
+        var token = extractToken(request);
+        if (token == null) {
+            log.debug(LOG_NO_TOKEN);
+            return;
+        }
+        var claims = parseClaims(token);
+        if (claims == null) {
+            log.warn(LOG_INVALID_TOKEN);
+            return;
+        }
+        var username = claims.getSubject();
+        if (username == null || claims.getExpiration() == null) {
+            log.warn(LOG_INVALID_TOKEN);
+            return;
+        }
+        var authorities = extractAuthorities(claims.get(ROLES_CLAIM));
+        log.info(LOG_ROLES_EXTRACTED, authorities);
+        setAuthenticationIfAbsent(username, authorities, request);
+    }
+
+    private String extractToken(HttpServletRequest request) {
+        var header = request.getHeader(AUTH_HEADER);
+        if (header != null && header.startsWith(TOKEN_PREFIX)) {
+            return header.substring(TOKEN_PREFIX.length());
+        } else if (request.getCookies() != null) {
+            for (var cookie : request.getCookies()) {
+                if (ACCESS_TOKEN_COOKIE.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    private io.jsonwebtoken.Claims parseClaims(String token) {
+        try {
+            var key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+            return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+        } catch (Exception e) {
+            log.warn(LOG_JWT_VALIDATION_FAILED, e.getMessage());
+            throw new JwtException(LOG_JWT_VALIDATION_FAILED + " " + e.getMessage());
+        }
+    }
+
+    private List<SimpleGrantedAuthority> extractAuthorities(Object rawRoles) {
+        var authorities = new ArrayList<SimpleGrantedAuthority>();
+        if (rawRoles instanceof List<?> roleList) {
+            for (Object role : roleList) {
+                if (role instanceof String roleStr) {
+                    authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + roleStr));
+                } else {
+                    log.warn(LOG_ROLE_TYPE_WARNING, role.getClass());
+                }
+            }
+        } else if (rawRoles != null) {
+            log.warn(LOG_ROLE_FORMAT_WARNING, rawRoles.getClass());
+        }
+        return authorities;
+    }
+
+    private void setAuthenticationIfAbsent(String username, List<SimpleGrantedAuthority> authorities, HttpServletRequest request) {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            var auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
+            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            log.debug(LOG_USER_AUTHENTICATED, username);
+        }
     }
 }

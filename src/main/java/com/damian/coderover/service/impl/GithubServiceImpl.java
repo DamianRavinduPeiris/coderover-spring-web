@@ -35,7 +35,10 @@ public class GithubServiceImpl implements GithubService {
         try {
             var authHeader = withBearer(accessToken);
             var repos = githubClient.getUserRepos(authHeader, perPage, page);
-            return ResponseEntity.ok(new Response("User repositories fetched successfully", repos, HttpStatus.OK.value()));
+            var javaRepos = repos.stream()
+                .filter(repoDTO -> repoDTO.language() != null && repoDTO.language().equalsIgnoreCase(JAVA))
+                .toList();
+            return ResponseEntity.ok(new Response("User repositories fetched successfully", javaRepos, HttpStatus.OK.value()));
         } catch (Exception e) {
             throw new GithubException("Failed to fetch user repositories: " + e.getMessage());
         }
@@ -45,18 +48,19 @@ public class GithubServiceImpl implements GithubService {
     public ResponseEntity<Response> fetchRepoTree(String accessToken, String owner, String repo, String branch) {
         try {
             var branchDetailsResponse = fetchBranchDetails(accessToken, owner, repo, branch);
+            var body = branchDetailsResponse.getBody();
 
-            if (branchDetailsResponse.getStatusCode().is2xxSuccessful() && branchDetailsResponse.getBody() != null) {
-                var branchData = (BranchResponse) branchDetailsResponse.getBody().data();
-                if (branchData == null || branchData.commit() == null || branchData.commit().commit() == null || branchData.commit().commit().tree() == null) {
-                    throw new GithubException(ERROR_NULL_BRANCH_SHA);
-                }
+            if (branchDetailsResponse.getStatusCode().is2xxSuccessful() && body != null) {
+                    var branchData = (BranchResponse) body.data();
+                    if (branchData == null || branchData.commit() == null || branchData.commit().commit() == null || branchData.commit().commit().tree() == null) {
+                        throw new GithubException(ERROR_NULL_BRANCH_SHA);
+                    }
 
-                var sha = branchData.commit().commit().tree().sha();
-                var authHeader = withBearer(accessToken);
-                var repoTree = githubClient.getRepoTree(authHeader, owner, repo, sha);
+                    var sha = branchData.commit().commit().tree().sha();
+                    var authHeader = withBearer(accessToken);
+                    var repoTree = githubClient.getRepoTree(authHeader, owner, repo, sha);
 
-                return ResponseEntity.ok(new Response("Repo tree fetched " + SUCCESS, repoTree, HttpStatus.OK.value()));
+                    return ResponseEntity.ok(new Response("Repo tree fetched " + SUCCESS, repoTree, HttpStatus.OK.value()));
             } else {
                 throw new GithubException(ERROR_BRANCH_NOT_FOUND);
             }
