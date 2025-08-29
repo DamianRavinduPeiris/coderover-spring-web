@@ -21,9 +21,14 @@ spring:
 github:
   base-uri: https://api.github.com
 jwt:
-    secret: ${JWT_SECRET}
-    expiration-ms: 600000000
+  secret: ${JWT_SECRET}
+  expiration-ms: 600000000
 frontend:
-    redirect-uri: ${FRONTEND_REDIRECT_URI}
+  redirect-uri: ${FRONTEND_REDIRECT_URI}
 debug: true
 
+review:
+  client:
+    base-url: ${REVIEW_CLIENT_BASE_URL}
+    token: ${REVIEW_CLIENT_TOKEN}
+    prompt: ${REVIEW_CLIENT_PROMPT}
