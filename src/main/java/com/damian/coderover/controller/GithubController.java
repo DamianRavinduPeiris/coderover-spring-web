@@ -46,7 +46,7 @@ public class GithubController {
         return githubService.fetchAllBranches(client.getAccessToken().getTokenValue(), owner, repo);
     }
 
-    @GetMapping( "/user")
+    @GetMapping("/user")
     public ResponseEntity<Response> fetchUserInfo() {
         return userService.fetchUserInfo();
     }

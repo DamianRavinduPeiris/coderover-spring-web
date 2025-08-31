@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
+import java.util.Map;
 
 @FeignClient(name = "GithubClient", url = "${github.base-uri}")
 public interface GithubClient {
@@ -55,5 +56,6 @@ public interface GithubClient {
             @PathVariable String repo
     );
 
-
+    @GetMapping(value = "/user/emails", headers = "Accept=application/vnd.github+json")
+    List<Map<String, Object>> getUserEmails(@RequestHeader("Authorization") String authHeader);
 }

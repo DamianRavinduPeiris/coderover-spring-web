@@ -29,12 +29,14 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         var oAuth2User = (OAuth2User) authentication.getPrincipal();
-        var token = tokenProvider.createToken(oAuth2User);
+        var token = tokenProvider.issueTokenAndPersistUser(oAuth2User,authentication);
+
         var cookie = new Cookie(ACCESS_TOKEN_COOKIE_NAME, token);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath(COOKIE_PATH);
         cookie.setMaxAge(3600);
+
         response.addCookie(cookie);
         log.info("Redirecting to : {}", redirectUrl);
         response.sendRedirect(redirectUrl);

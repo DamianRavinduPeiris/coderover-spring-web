@@ -1,6 +1,7 @@
 server:
   port: 8080
 
+#OAuth2 Config
 spring:
   security:
     oauth2:
@@ -9,7 +10,7 @@ spring:
           github:
             client-id: ${GITHUB_CLIENT_ID}
             client-secret: ${GITHUB_CLIENT_SECRET}
-            scope: read:user
+            scope: read:user,user:email,repo,read:org
             redirect-uri: "{baseUrl}/login/oauth2/code/github"
             client-name: GitHub
         provider:
@@ -18,8 +19,29 @@ spring:
             token-uri: https://github.com/login/oauth/access_token
             user-info-uri: https://api.github.com/user
             user-name-attribute: login
+  #DB Config
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  main:
+    allow-circular-references: true
+
+#GitHub API Config
 github:
   base-uri: https://api.github.com
+
+#JWT Config
 jwt:
   secret: ${JWT_SECRET}
   expiration-ms: 600000000
@@ -27,8 +49,13 @@ frontend:
   redirect-uri: ${FRONTEND_REDIRECT_URI}
 debug: true
 
+#Review-Client Config
 review:
   client:
     base-url: ${REVIEW_CLIENT_BASE_URL}
     token: ${REVIEW_CLIENT_TOKEN}
     prompt: ${REVIEW_CLIENT_PROMPT}
+
+#User-Config
+user:
+  default-profile-picture-url: ${USER_DEFAULT_PROFILE_PICTURE_URL}
