@@ -1,6 +1,7 @@
 package com.damian.coderover.service.impl;
 
 import com.damian.coderover.exception.ReviewException;
+import com.damian.coderover.feign.CodeT5ReviewClient;
 import com.damian.coderover.feign.ReviewClient;
 import com.damian.coderover.response.Response;
 import com.damian.coderover.service.ReviewService;
@@ -19,6 +20,7 @@ import java.util.Map;
 @Log4j2
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
+    private final CodeT5ReviewClient codeT5ReviewClient;
     private final ReviewClient reviewClient;
     @Value("${review.client.token}")
     private String reviewAuthToken;
@@ -43,6 +45,21 @@ public class ReviewServiceImpl implements ReviewService {
                     extractedResponse, HttpStatus.OK.value()));
         } catch (Exception e) {
             throw new ReviewException(("An error occurred while reviewing code : " + e.getMessage()));
+        }
+    }
+
+    @Override
+    public ResponseEntity<Response> requestCodeReviewFromCodeT5V1(String code) {
+        var requestBody = Map.of("code", code);
+        try {
+            var response = codeT5ReviewClient.getV1Review(requestBody);
+            var extractedResponse = response.getBody();
+            log.info("CodeT5 v1 Review response : {}", extractedResponse);
+
+            return ResponseEntity.ok(new Response("Code Review completed successfully!",
+                    extractedResponse, HttpStatus.OK.value()));
+        } catch (Exception e) {
+            throw new ReviewException(("An error occurred while reviewing code from CodeT5 : " + e.getMessage()));
         }
     }
 }

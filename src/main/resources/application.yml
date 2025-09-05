@@ -56,6 +56,11 @@ review:
     token: ${REVIEW_CLIENT_TOKEN}
     prompt: ${REVIEW_CLIENT_PROMPT}
 
+#CodeT5 Config
+codeT5:
+  base-url : ${CODE_T5_V1_BASE_URL}
+
+
 #User-Config
 user:
   default-profile-picture-url: ${USER_DEFAULT_PROFILE_PICTURE_URL}

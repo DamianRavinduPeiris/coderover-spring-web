@@ -20,4 +20,9 @@ public class ReviewController {
     public ResponseEntity<Response> requestCodeReview(@RequestBody String code) {
         return reviewService.requestCodeReview(code);
     }
+
+    @PostMapping(path = "/codeT5/v1")
+    public ResponseEntity<Response> requestCodeReviewFromCodeT5_V1(@RequestBody String code) {
+        return reviewService.requestCodeReviewFromCodeT5V1(code);
+    }
 }

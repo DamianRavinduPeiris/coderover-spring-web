@@ -7,4 +7,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface ReviewService {
     ResponseEntity<Response> requestCodeReview(String code);
+    ResponseEntity<Response> requestCodeReviewFromCodeT5V1(String code);
 }
