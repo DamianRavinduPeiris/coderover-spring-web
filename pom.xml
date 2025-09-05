@@ -60,6 +60,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -88,8 +94,33 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
             <version>4.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.12.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.12.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.26.3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
+        <testSourceDirectory>src/tests/java</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -102,6 +133,68 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*IT.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/CodeRoverSpringApplication*.class</exclude>
+                        <exclude>**/com/damian/coderover/config/**</exclude>
+                        <exclude>**/com/damian/coderover/controller/**</exclude>
+                        <exclude>**/com/damian/coderover/dto/**</exclude>
+                        <exclude>**/com/damian/coderover/entity/**</exclude>
+                        <exclude>**/com/damian/coderover/exception/**</exclude>
+                        <exclude>**/com/damian/coderover/feign/**</exclude>
+                        <exclude>**/com/damian/coderover/filter/**</exclude>
+                        <exclude>**/com/damian/coderover/handler/**</exclude>
+                        <exclude>**/com/damian/coderover/repository/**</exclude>
+                        <exclude>**/com/damian/coderover/response/**</exclude>
+                        <exclude>**/com/damian/coderover/util/**</exclude>
+                    </excludes>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.11</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/CodeRoverSpringApplication*.class</exclude>
+                        <exclude>**/com/damian/coderover/config/**</exclude>
+                        <exclude>**/com/damian/coderover/controller/**</exclude>
+                        <exclude>**/com/damian/coderover/dto/**</exclude>
+                        <exclude>**/com/damian/coderover/entity/**</exclude>
+                        <exclude>**/com/damian/coderover/exception/**</exclude>
+                        <exclude>**/com/damian/coderover/feign/**</exclude>
+                        <exclude>**/com/damian/coderover/filter/**</exclude>
+                        <exclude>**/com/damian/coderover/handler/**</exclude>
+                        <exclude>**/com/damian/coderover/repository/**</exclude>
+                        <exclude>**/com/damian/coderover/response/**</exclude>
+                        <exclude>**/com/damian/coderover/util/**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
