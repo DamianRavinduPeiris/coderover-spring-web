@@ -62,7 +62,7 @@ class GithubServiceImplTest {
         @SuppressWarnings("unchecked")
         List<RepoDTO> data = (List<RepoDTO>) body.data();
         assertThat(data).hasSize(1);
-        assertThat(data.get(0).language()).isEqualToIgnoringCase("java");
+        assertThat(data.getFirst().language()).isEqualToIgnoringCase("java");
     }
 
     @Test
