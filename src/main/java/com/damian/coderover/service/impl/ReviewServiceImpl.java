@@ -32,8 +32,8 @@ public class ReviewServiceImpl implements ReviewService {
     public ResponseEntity<Response> requestCodeReview(String code) {
         try {
             var requestBody = Map.of(
-                    "model", "openai/gpt-oss-120b:free",
-                    "messages", List.of(
+                    "model", "gpt-5",
+                    "input", List.of(
                             Map.of("role", "user", "content", reviewPrompt + "\n" + code)
                     )
             );

@@ -12,7 +12,7 @@ import java.util.Map;
 @FeignClient(name = "reviewClient", url = "${review.client.base-url}")
 public interface ReviewClient {
 
-    @PostMapping("/api/v1/chat/completions")
+    @PostMapping("/v1/responses")
     ResponseEntity<ReviewResponseDTO> getCodeReview(
             @RequestHeader("Authorization") String authorization,
             @RequestBody Map<String, Object> requestBody
