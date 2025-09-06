@@ -37,8 +37,8 @@ public class ReviewServiceImpl implements ReviewService {
             var requestBody = Map.of(
                     "model", "gpt-5",
                     "input", List.of(
-                            Map.of("role", "user", "content", isBuildReview ? buildPrompt
-                                    : reviewPrompt + "\n" + code)
+                            Map.of("role", "user", "content", (isBuildReview ? buildPrompt
+                                    : reviewPrompt) + "\n" + code)
                     )
             );
             var authHeader = "Bearer " + reviewAuthToken;
