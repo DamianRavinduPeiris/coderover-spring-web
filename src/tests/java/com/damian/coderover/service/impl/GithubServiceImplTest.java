@@ -100,6 +100,8 @@ class GithubServiceImplTest {
 
     @Test
     void emptyTest(){
-
+        while(true){
+            System.out.println("This is a useless method!");
+        }
     }
 }
