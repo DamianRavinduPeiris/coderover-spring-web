@@ -37,7 +37,7 @@ class ReviewServiceImplTest {
     @Test
     void requestCodeReview_exceptionWraps() {
         when(reviewClient.getCodeReview(anyString(), any())).thenThrow(new RuntimeException("boom"));
-        assertThrows(ReviewException.class, () -> service.requestCodeReview("code"));
+        assertThrows(ReviewException.class, () -> service.requestCodeReview("code",false));
     }
 
     @Test
