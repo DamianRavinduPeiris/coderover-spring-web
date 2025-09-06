@@ -5,14 +5,12 @@ import com.damian.coderover.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api/v1/review", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class ReviewController {
     private final ReviewService reviewService;
 
@@ -24,5 +22,10 @@ public class ReviewController {
     @PostMapping(path = "/codeT5/v1")
     public ResponseEntity<Response> requestCodeReviewFromCodeT5_V1(@RequestBody String code) {
         return reviewService.requestCodeReviewFromCodeT5V1(code);
+    }
+
+    @PostMapping(path = "/status")
+    public ResponseEntity<Response> reviewBuild(@RequestBody String code) {
+        return reviewService.requestCodeReview(code);
     }
 }
