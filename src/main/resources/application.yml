@@ -71,6 +71,7 @@ review:
     base-url: ${REVIEW_CLIENT_BASE_URL}
     token: ${REVIEW_CLIENT_TOKEN}
     prompt: ${REVIEW_CLIENT_PROMPT}
+    build-prompt : ${REVIEW_CLIENT_BUILD_PROMPT}
 
 #CodeT5 Config
 codeT5:

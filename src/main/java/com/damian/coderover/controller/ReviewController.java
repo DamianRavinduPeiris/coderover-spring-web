@@ -16,7 +16,7 @@ public class ReviewController {
 
     @PostMapping
     public ResponseEntity<Response> requestCodeReview(@RequestBody String code) {
-        return reviewService.requestCodeReview(code);
+        return reviewService.requestCodeReview(code, false);
     }
 
     @PostMapping(path = "/codeT5/v1")
@@ -26,6 +26,6 @@ public class ReviewController {
 
     @PostMapping(path = "/status")
     public ResponseEntity<Response> reviewBuild(@RequestBody String code) {
-        return reviewService.requestCodeReview(code);
+        return reviewService.requestCodeReview(code, true);
     }
 }
