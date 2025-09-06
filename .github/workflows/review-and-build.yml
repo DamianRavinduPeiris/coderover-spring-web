@@ -1,0 +1,123 @@
+name: Review & Build.
+
+on:
+  pull_request:
+    branches: [ master ]
+
+permissions: read-all
+
+jobs:
+  review:
+    name: Run agent review on changed files.
+    runs-on: ubuntu-latest
+    outputs:
+      blocked: ${{ steps.review.outputs.blocked }}
+      message: ${{ steps.review.outputs.message }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine changed Java files
+        id: diff
+        shell: bash
+        run: |
+          RANGE="${{ github.event.pull_request.base.sha }}...${{ github.sha }}"
+          files=$(git diff --name-only "$RANGE" | grep -E '\.java$' || true)
+          printf '%s\n' "$files" > changed.txt
+          echo "Changed files:"
+          cat changed.txt || true
+
+      - name: Review changed files via API
+        id: review
+        env:
+          REVIEW_API_URL: ${{ vars.REVIEW_API_URL || secrets.REVIEW_API_URL || 'http://localhost:8080/api/v1/review/status' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -y >/dev/null
+          sudo apt-get install -y jq >/dev/null
+
+          blocked="false"
+          message=""
+
+          # If no changed Java files, nothing to do
+          if [ ! -s changed.txt ]; then
+            echo "No changed Java files."
+          else
+            while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              [ ! -f "$f" ] && continue
+
+              # JSON-encode the file as {"code": "<file contents>"}
+              code_json=$(jq -Rs . < "$f")
+              payload=$(jq -n --argjson code "$code_json" '{code: $code}')
+
+              echo "Calling review API for: $f"
+              resp=$(curl -sS -X POST \
+                -H 'Content-Type: application/json' \
+                --data "$payload" \
+                "$REVIEW_API_URL")
+
+              echo "API response (truncated):"
+              echo "$resp" | head -c 500; echo
+
+              # Extract the first message.output_text (your example's structure)
+              txt=$(
+                jq -r '
+                  .data?.output[]? |
+                  select(.type=="message") |
+                  .content[]? |
+                  select(.type=="output_text") |
+                  .text
+                ' <<<"$resp" | head -n1
+              )
+
+              # If the first line is literally "true", block
+              firstline=$(printf "%s" "$txt" | head -n1)
+              if [ "$firstline" = "true" ]; then
+                blocked="true"
+                # Use the full text so your custom message appears in the job log
+                message="$txt"
+                break
+              fi
+            done < changed.txt
+          fi
+
+          {
+            echo "blocked=$blocked"
+            echo "message<<EOF"
+            echo "$message"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Maven build (only if not blocked)
+    needs: review
+    if: needs.review.outputs.blocked != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: mvn -B -q -DskipTests package
+
+  block:
+    name: Block with agent message
+    needs: review
+    if: needs.review.outputs.blocked == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail the build with agent's message.
+        run: |
+          echo "::error title=Build Blocked::${{ needs.review.outputs.message }}"
+          exit 1
