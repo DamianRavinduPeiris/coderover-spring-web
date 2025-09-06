@@ -36,6 +36,22 @@ spring:
 
   main:
     allow-circular-references: true
+  mail:
+    host: ${MAIL_HOST}
+    port: 587
+    username: ${APP_USERNAME}
+    password: ${APP_PASSWORD}
+    properties:
+      mail:
+        debug: ${MAIL_DEBUG:false}
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 #GitHub API Config
 github:
@@ -64,3 +80,7 @@ codeT5:
 #User-Config
 user:
   default-profile-picture-url: ${USER_DEFAULT_PROFILE_PICTURE_URL}
+
+#Mail Config
+mail:
+  from: ${MAIL_FROM}
