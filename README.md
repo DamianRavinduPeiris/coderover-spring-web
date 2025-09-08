@@ -6,24 +6,24 @@
 ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED)
 ![MySQL](https://img.shields.io/badge/MySQL-8-4479A1)
 
-## 🚀 Overview
+## Overview
 
 CodeRover is a sophisticated Spring Boot web application that provides AI-powered code review services with seamless GitHub integration. The application enables developers to authenticate via GitHub OAuth2, browse their repositories, and leverage multiple AI models (GPT-5 and CodeT5) for intelligent code analysis and review.
 
-## ✨ Key Features
+## Key Features
 
-### 🔐 Authentication & Security
+### Authentication & Security
 - **GitHub OAuth2 Integration**: Secure login using GitHub credentials
 - **JWT Token Management**: Session management with JSON Web Tokens
 - **Spring Security**: Comprehensive security configuration with role-based access
 
-### 📂 GitHub Integration
+### GitHub Integration
 - **Repository Management**: Fetch and browse user repositories (Java-focused filtering)
 - **File System Navigation**: Explore repository trees and file structures
 - **Branch Management**: Access and switch between different repository branches
 - **File Content Retrieval**: Read and analyze individual file contents via GitHub API
 
-### 🤖 AI-Powered Code Review
+### AI-Powered Code Review
 - **Multiple AI Providers**: 
   - GPT-5 integration via custom Review Client
   - CodeT5 model integration for specialized code analysis
@@ -31,16 +31,16 @@ CodeRover is a sophisticated Spring Boot web application that provides AI-powere
 - **Build Status Review**: Specialized prompts for build and deployment analysis
 - **Customizable Prompts**: Configurable review prompts for different scenarios
 
-### 📧 Communication
+### Communication
 - **Email Reports**: Send formatted code review reports via SMTP
 - **Real-time Notifications**: Instant feedback on code analysis results
 
-### 🗄️ Data Management
+### Data Management
 - **MySQL Integration**: Persistent data storage with Spring Data JPA
 - **User Management**: Store and manage user profiles and preferences
 - **Repository Tracking**: Track user interactions and review history
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend Framework
 - **Java 21**: Latest LTS version for optimal performance
@@ -72,14 +72,14 @@ CodeRover is a sophisticated Spring Boot web application that provides AI-powere
 - **JJWT**: JSON Web Token library
 - **Jakarta Mail**: Email functionality
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Java 21** or higher
 - **Maven 3.9+**
 - **MySQL 8.0+**
 - **Docker** (optional, for containerized deployment)
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone the Repository
 ```bash
@@ -144,7 +144,7 @@ java -jar target/coderover-0.0.1-SNAPSHOT.jar
 
 The application will start on `http://localhost:8080`
 
-## 🐳 Docker Deployment
+## Docker Deployment
 
 ### Build Docker Image
 ```bash
@@ -163,35 +163,7 @@ docker run -p 8080:8080 \
   coderover-spring
 ```
 
-### Docker Compose (Recommended)
-Create a `docker-compose.yml` file:
-```yaml
-version: '3.8'
-services:
-  app:
-    build: .
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    env_file:
-      - .env
-    depends_on:
-      - mysql
-      
-  mysql:
-    image: mysql:8
-    environment:
-      MYSQL_DATABASE: coderover
-      MYSQL_ROOT_PASSWORD: rootpassword
-    volumes:
-      - mysql_data:/var/lib/mysql
-      
-volumes:
-  mysql_data:
-```
-
-## 📖 API Documentation
+## API Documentation
 
 ### Authentication Endpoints
 - `GET /oauth2/authorization/github` - Initiate GitHub OAuth2 flow
@@ -216,7 +188,7 @@ volumes:
 - `GET /health` - Application health status
 - `GET /actuator/health` - Detailed health information
 
-## 🧪 Testing
+## Testing
 
 ### Run Unit Tests
 ```bash
@@ -233,7 +205,7 @@ Coverage reports will be generated in `target/site/jacoco/index.html`
 ### Test Configuration
 The project includes comprehensive test exclusions in `pom.xml` to focus on service layer testing while excluding configuration and DTO classes.
 
-## 🚀 CI/CD Pipeline
+## CI/CD Pipeline
 
 The project includes GitHub Actions workflow for automated review and build:
 
@@ -248,7 +220,7 @@ The project includes GitHub Actions workflow for automated review and build:
 - Automatic review of all changed Java files
 - Build execution only if review passes
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
@@ -272,7 +244,7 @@ src/
     └── java/               # Test classes
 ```
 
-## 🔧 Configuration Details
+## Configuration Details
 
 ### GitHub OAuth2 Setup
 1. Go to GitHub → Settings → Developer settings → OAuth Apps
@@ -290,13 +262,12 @@ Configure your preferred AI review service endpoints and authentication tokens i
 - Never commit `.env` files to version control
 - Use different environment files for different deployment environments
 
-## 📂 Additional Resources
+## Additional Resources
 
 - **[CONTRIBUTING.md](CONTRIBUTING.md)**: Detailed contribution guidelines
 - **[.env.example](.env.example)**: Environment variables template
-- **[docker-compose.yml](docker-compose.yml)**: Docker Compose setup for development
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -310,17 +281,17 @@ Configure your preferred AI review service endpoints and authentication tokens i
 - Update documentation as needed
 - Ensure all tests pass before submitting PR
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 Author
+## Author
 
 **Damian Ravindu Peiris**
 - GitHub: [@DamianRavinduPeiris](https://github.com/DamianRavinduPeiris)
 - Email: [Contact via GitHub](https://github.com/DamianRavinduPeiris)
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Spring Boot team for the excellent framework
 - GitHub for their comprehensive API
@@ -329,4 +300,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**⚡ Ready to revolutionize your code review process? Get started with CodeRover today!**
+**Ready to revolutionize your code review process? Get started with CodeRover today!**
