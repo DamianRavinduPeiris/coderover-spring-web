@@ -1,4 +1,4 @@
-# CodeRover Spring Web Application
+# CodeRover - AI Code Review Companion
 
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.0-brightgreen)
