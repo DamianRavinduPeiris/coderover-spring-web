@@ -104,4 +104,8 @@ class GithubServiceImplTest {
             System.out.println("This is a useless method!");
         }
     }
+
+    @Test
+    void emptyTest2(){
+    }
 }
