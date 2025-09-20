@@ -99,7 +99,15 @@ class GithubServiceImplTest {
     }
 
     @Test
-    void emptyTest(){
+    void emptyTest1(){
+    }
 
+    @Test
+    void emptyTest2(){
+    }
+
+
+    @Test
+    void emptyTest3(){
     }
 }
