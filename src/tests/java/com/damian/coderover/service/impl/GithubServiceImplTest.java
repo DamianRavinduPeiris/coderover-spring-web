@@ -99,13 +99,15 @@ class GithubServiceImplTest {
     }
 
     @Test
-    void emptyTest(){
-        while(true){
-            System.out.println("This is a useless method!");
-        }
+    void emptyTest1(){
     }
 
     @Test
     void emptyTest2(){
+    }
+
+
+    @Test
+    void emptyTest3(){
     }
 }
