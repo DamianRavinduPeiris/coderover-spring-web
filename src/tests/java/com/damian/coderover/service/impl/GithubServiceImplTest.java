@@ -97,4 +97,9 @@ class GithubServiceImplTest {
         var ex = assertThrows(GithubException.class, () -> spy.fetchRepoTree("tok","o","r","b"));
         assertThat(ex.getMessage()).contains("Tree SHA missing");
     }
+
+    @Test
+    void emptyTest(){
+
+    }
 }
